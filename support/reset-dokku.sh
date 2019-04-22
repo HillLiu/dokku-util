@@ -9,8 +9,12 @@ remote=`${DIR}/dokku-remote.sh`
 dokkuServer=${host}:${port}
 ssh="ssh://dokku@${dokkuServer}/$app"
 
-echo $ssh; 
+echo '###'
+echo "# Set ssh: $ssh"
+echo "# App: $app"
+echo "##"
 
 git remote remove $remote 
 git remote add $remote $ssh 
-
+git remote -v
+echo ""
