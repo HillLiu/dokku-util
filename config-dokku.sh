@@ -7,14 +7,28 @@ host=`${DIR}/host.sh`
 port=`${DIR}/port.sh`
 app=`${DIR}/dokku-app.sh`
 scales=`${DIR}/scales.sh`
+mounts=`${DIR}/mounts.sh`
 configkeys=`${DIR}/config-keys.sh`
 
-scaleCmd="sudo dokku ps:scale $app"
-for ss in ${scales} ; do
-  scaleValue=$(awk -F "=" '/^'"${ss}"'/ {print $2}' $ENV_FILE)
-  scaleCmd+=" ${ss}=$scaleValue"
-done
-scaleCmd+=";"
+if [ ! -z "$scales" ]; then
+  scaleCmd="sudo dokku ps:scale $app"
+  for ss in ${scales} ; do
+    scaleValue=$(awk -F "=" '/^'"${ss}"'/ {print $2}' $ENV_FILE)
+    scaleCmd+=" ${ss}=$scaleValue"
+  done
+  scaleCmd+=";"
+else
+  scaleCmd=""
+fi
+
+if [ ! -z "$mounts" ]; then
+  mountCmd=""
+  for mm in ${mounts} ; do
+    mountCmd+="dokku storage:mount ${app} ${mm};"
+  done
+else
+  mountCmd=""
+fi
 
 if [ ! -z "$configkeys" ]; then
   configCmd="sudo dokku config:set --no-restart $app"
@@ -31,14 +45,18 @@ run(){
     ssh -p $port -t $host "$1"
 }
 
-cmd=${configCmd}${scaleCmd}
+cmd=${configCmd}${scaleCmd}${mountCmd}
 # Last
-cmd+="sudo dokku ps:stop $app;"
-cmd+="sudo dokku ps:start $app;"
+if [ -z "$scales" ] && [ -z "${mountCmd}" ]; then
+  cmd+="sudo dokku ps:stop $app;"
+  cmd+="sudo dokku ps:start $app;"
+fi
 
 echo "###"
 echo "# Running following command"
 echo "###"
+echo ""
 echo $cmd;
+echo ""
 
 run "$cmd"
