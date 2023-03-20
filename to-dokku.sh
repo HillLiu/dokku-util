@@ -10,3 +10,5 @@ git add -A && \
   git commit --amend --no-edit && \
   git push ${remote} ${local}:master -f && \
   git reset origin/${local}
+
+exit 0
