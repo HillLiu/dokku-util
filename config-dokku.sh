@@ -1,18 +1,21 @@
 #!/bin/bash
 
-DIR="$( cd "$(dirname "$0")" ; pwd -P )"
-ENV_FILE=`${DIR}/env-file.sh`
+DIR="$(
+  cd "$(dirname "$0")"
+  pwd -P
+)"
+ENV_FILE=$(${DIR}/env-file.sh)
 
-host=`${DIR}/host.sh`
-port=`${DIR}/port.sh`
-app=`${DIR}/dokku-app.sh`
-scales=`${DIR}/scales.sh`
-mounts=`${DIR}/mounts.sh`
-configkeys=`${DIR}/config-keys.sh`
+host=$(${DIR}/host.sh)
+port=$(${DIR}/port.sh)
+app=$(${DIR}/dokku-app.sh)
+scales=$(${DIR}/scales.sh)
+mounts=$(${DIR}/mounts.sh)
+configkeys=$(${DIR}/config-keys.sh)
 
 if [ ! -z "$scales" ]; then
   scaleCmd="sudo dokku ps:scale $app"
-  for ss in ${scales} ; do
+  for ss in ${scales}; do
     scaleValue=$(awk -F "=" '/^'"${ss}"'/ {print $2}' $ENV_FILE)
     scaleCmd+=" ${ss}=$scaleValue"
   done
@@ -23,7 +26,7 @@ fi
 
 if [ ! -z "$mounts" ]; then
   mountCmd=""
-  for mm in ${mounts} ; do
+  for mm in ${mounts}; do
     mountCmd+="dokku storage:mount ${app} ${mm};"
   done
 else
@@ -32,7 +35,7 @@ fi
 
 if [ ! -z "$configkeys" ]; then
   configCmd="sudo dokku config:set --no-restart $app"
-  for cc in ${configkeys} ; do
+  for cc in ${configkeys}; do
     configValue=$(awk -F "=" '/^'"${cc}"'/ {print $2}' $ENV_FILE)
     configCmd+=" ${cc}=$configValue"
   done
@@ -41,8 +44,12 @@ else
   configCmd=""
 fi
 
-run(){
+run() {
+  if [ "xlocalhost" == "x$host" ]; then
+    sh -c "$1"
+  else
     ssh -p $port -t $host "$1"
+  fi
 }
 
 createAppCmd="dokku apps:create $app;"
@@ -58,7 +65,7 @@ echo "###"
 echo "# Running following command"
 echo "###"
 echo ""
-echo $cmd;
+echo $cmd
 echo ""
 
 run "$cmd"
