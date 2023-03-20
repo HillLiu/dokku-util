@@ -23,3 +23,5 @@ fi
 git remote add $remote $ssh
 git remote -v
 echo ""
+
+exit 0
