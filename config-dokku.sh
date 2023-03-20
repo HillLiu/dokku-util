@@ -45,7 +45,9 @@ run(){
     ssh -p $port -t $host "$1"
 }
 
-cmd=${configCmd}${scaleCmd}${mountCmd}
+createAppCmd="dokku apps:create $app;"
+
+cmd=${createAppCmd}${configCmd}${scaleCmd}${mountCmd}
 # Last
 if [ -z "$scales" ] && [ -z "${mountCmd}" ]; then
   cmd+="sudo dokku ps:stop $app;"
