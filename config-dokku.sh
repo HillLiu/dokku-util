@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 DIR="$(
   cd "$(dirname "$0")"
@@ -69,3 +69,5 @@ echo $cmd
 echo ""
 
 run "$cmd"
+
+exit 0
