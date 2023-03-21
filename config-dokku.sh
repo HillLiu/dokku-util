@@ -28,7 +28,7 @@ fi
 if [ ! -z "$domains" ]; then
   domainCmd="dokku domains:add ${app}"
   for dd in ${domains}; do
-    domainCmd+=" ${dd};"
+    domainCmd+=" ${dd}"
   done
   domainCmd+=";"
 else
