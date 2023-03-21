@@ -10,6 +10,7 @@ host=$(${DIR}/host.sh)
 port=$(${DIR}/port.sh)
 app=$(${DIR}/dokku-app.sh)
 scales=$(${DIR}/scales.sh)
+domains=$(${DIR}/domains.sh)
 mounts=$(${DIR}/mounts.sh)
 configkeys=$(${DIR}/config-keys.sh)
 
@@ -22,6 +23,16 @@ if [ ! -z "$scales" ]; then
   scaleCmd+=";"
 else
   scaleCmd=""
+fi
+
+if [ ! -z "$domains" ]; then
+  domainCmd="dokku domains:add ${app}"
+  for dd in ${domains}; do
+    domainCmd+=" ${dd};"
+  done
+  domainCmd+=";"
+else
+  domainCmd=""
 fi
 
 if [ ! -z "$mounts" ]; then
@@ -54,7 +65,7 @@ run() {
 
 createAppCmd="dokku apps:create $app;"
 
-cmd=${createAppCmd}${configCmd}${scaleCmd}${mountCmd}
+cmd=${createAppCmd}${configCmd}${scaleCmd}${domainCmd}${mountCmd}
 # Last
 if [ -z "$scales" ] && [ -z "${mountCmd}" ]; then
   cmd+="sudo dokku ps:stop $app;"
