@@ -13,6 +13,7 @@ scales=$(${DIR}/scales.sh)
 domains=$(${DIR}/domains.sh)
 mounts=$(${DIR}/mounts.sh)
 configkeys=$(${DIR}/config-keys.sh)
+nginxClientMaxBodySize=$(${DIR}/nginx-client-max-body-size.sh)
 
 if [ ! -z "$scales" ]; then
   scaleCmd="sudo dokku ps:scale $app"
@@ -55,6 +56,14 @@ else
   configCmd=""
 fi
 
+if [ ! -z "$nginxClientMaxBodySize" ]; then
+  nginxCmd="dokku nginx:set apache client-max-body-size ${nginxClientMaxBodySize};"
+else
+  nginxCmd=""
+fi
+
+createAppCmd="dokku apps:create $app;"
+
 run() {
   if [ "xlocalhost" == "x$host" ]; then
     sh -c "$1"
@@ -63,9 +72,7 @@ run() {
   fi
 }
 
-createAppCmd="dokku apps:create $app;"
-
-cmd=${createAppCmd}${configCmd}${scaleCmd}${domainCmd}${mountCmd}
+cmd=${createAppCmd}${configCmd}${scaleCmd}${domainCmd}${mountCmd}${nginxCmd}
 # Last
 if [ -z "$scales" ] && [ -z "${mountCmd}" ]; then
   cmd+="sudo dokku ps:stop $app;"
